@@ -42,13 +42,13 @@
 }
 
 .category-button {
-  background-color: #e0e0e0;
+  background-color: #09a2cc;
+  color: #ffffff;
   border: none;
   padding: 10px 15px;
   cursor: pointer;
   font-weight: bold;
   border-radius: 8px;
-  color: #000519;
 }
 
 .dropdown-menu {
