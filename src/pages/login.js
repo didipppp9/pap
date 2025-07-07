@@ -13,12 +13,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // ... (a função handleLogin continua a mesma)
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/');
@@ -33,51 +31,18 @@ export default function LoginPage() {
   return (
     <div className="auth-container">
       <div className="auth-form">
-        {/* BOTÃO ATUALIZADO COM ESTILO DIRETO */}
-        <button
-            onClick={() => router.back()}
-            style={{
-            position: 'absolute',
-            top: '25px',    // Ajuste aqui
-            right: '10px',   // E aqui
-            background: 'none',
-            border: 'none',
-            fontSize: '1.5rem',
-            color: '#aaaaaa',
-            cursor: 'pointer',
-            padding: '0',
-            lineHeight: '1',
-        }}
-        >
-        &times;
-        </button>
-        
+        <button onClick={() => router.back()} className="close-btn">&times;</button>
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
-          {/* ... resto do formulário ... */}
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div className="form-group">
             <label htmlFor="password">Senha</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
-          
           {error && <p className="error-message">{error}</p>}
-          
           <button type="submit" disabled={loading}>
             {loading ? 'A entrar...' : 'Entrar'}
           </button>

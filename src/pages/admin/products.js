@@ -1,0 +1,191 @@
+// src/pages/admin/products.js
+import { useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, doc, updateDoc, onSnapshot, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import useAdminAuth from '@/hooks/useAdminAuth';
+import '@/styles/admin.css';
+
+export default function ManageProducts() {
+  const { isAdmin, loading: adminLoading } = useAdminAuth();
+  
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const [isEditing, setIsEditing] = useState(null);
+  const [name, setName] = useState('');
+  const [artist, setArtist] = useState('');
+  const [type, setType] = useState('cd');
+  const [genre, setGenre] = useState('alt metal');
+  const [price, setPrice] = useState('');
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // ===== LINHA ALTERADA AQUI =====
+  const genres = ["Alt Metal", "Grunge", "Groove Metal", "Metalcore", "Nu-Metal", "Punk Rock", "Speed Metal", "Trash Metal"];
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const productsCollection = collection(db, 'products');
+    const unsubscribe = onSnapshot(productsCollection, (snapshot) => {
+      const productList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setProducts(productList);
+      setFilteredProducts(productList);
+    });
+    return () => unsubscribe();
+  }, [isAdmin]);
+
+  useEffect(() => {
+    const results = products.filter(product =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.artist && product.artist.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+    setFilteredProducts(results);
+  }, [searchTerm, products]);
+
+  const resetForm = () => {
+    setIsEditing(null);
+    setName('');
+    setArtist('');
+    setType('cd');
+    setGenre('alt metal');
+    setPrice('');
+    document.getElementById('product-form').reset();
+  };
+  
+  const handleEditClick = (product) => {
+    setSuccessMessage('');
+    setError('');
+    setIsEditing(product.id);
+    setName(product.name);
+    setArtist(product.artist || '');
+    setType(product.type);
+    setGenre(product.genre);
+    setPrice(product.price);
+    window.scrollTo(0, 0);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name || !price || !artist) {
+      setError('Nome, Artista e Preço são campos obrigatórios.');
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const productData = { name, artist, type, genre, price: parseFloat(price) };
+
+      if (isEditing) {
+        await updateDoc(doc(db, 'products', isEditing), productData);
+        setSuccessMessage('Produto atualizado com sucesso!');
+      } else {
+        await addDoc(collection(db, 'products'), { ...productData, createdAt: serverTimestamp() });
+        setSuccessMessage('Produto adicionado com sucesso!');
+      }
+      resetForm();
+    } catch (err) {
+      console.error("Erro ao guardar o produto:", err);
+      setError(`Ocorreu um erro: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (productId) => {
+    if (!window.confirm(`Tem a certeza que quer apagar este produto?`)) return;
+    try {
+      await deleteDoc(doc(db, 'products', productId));
+    } catch (err) {
+      console.error(err);
+      alert('Ocorreu um erro ao apagar o produto.');
+    }
+  };
+  
+  if (adminLoading) return <p className="text-center p-8">A verificar autorização...</p>;
+  if (!isAdmin) return null;
+
+  return (
+    <div className="admin-container">
+      <h1 className="admin-title">Gerir Produtos</h1>
+
+      <div className="card">
+        <h2 className="card-title">{isEditing ? 'Editar Produto' : 'Adicionar Novo Produto'}</h2>
+        
+        {error && <p className="error-text">{error}</p>}
+        {successMessage && <p style={{color: '#16a34a', marginBottom: '1rem', fontWeight: '500'}}>{successMessage}</p>}
+
+        <form id="product-form" onSubmit={handleSubmit}>
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="name" className="form-label">Nome do Produto</label>
+              <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} className="form-input" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="artist" className="form-label">Artista / Banda</label>
+              <input type="text" id="artist" value={artist} onChange={(e) => setArtist(e.target.value)} className="form-input" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="price" className="form-label">Preço (€)</label>
+              <input type="number" step="0.01" id="price" value={price} onChange={(e) => setPrice(e.target.value)} className="form-input" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="type" className="form-label">Tipo</label>
+              <select id="type" value={type} onChange={(e) => setType(e.target.value)} className="form-select">
+                <option value="cd">CD</option>
+                <option value="vinil">Vinil</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="genre" className="form-label">Género</label>
+              <select id="genre" value={genre} onChange={(e) => setGenre(e.target.value)} className="form-select">
+                {genres.map(g => <option key={g} value={g.toLowerCase()}>{g}</option>)}
+              </select>
+            </div>
+          </div>
+          
+          <div className="form-actions" style={{marginTop: '1rem'}}>
+            <button type="submit" disabled={loading} className="btn btn-primary">
+              {loading ? 'A guardar...' : (isEditing ? 'Atualizar Produto' : 'Adicionar Produto')}
+            </button>
+            {isEditing && (
+              <button type="button" onClick={resetForm} className="btn btn-secondary">
+                Cancelar Edição
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      <div className="card">
+        <div className="list-header">
+          <h2 className="card-title">Produtos Existentes</h2>
+          <input type="text" placeholder="Procurar produtos..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="form-input" style={{width: 'auto'}}/>
+        </div>
+        <div className="product-list">
+          {filteredProducts.length > 0 ? filteredProducts.map(product => (
+            <div key={product.id} className="product-item">
+              <div className="product-info">
+                <div className="product-details">
+                  <p className="name">{product.name}</p>
+                  <p className="artist" style={{fontWeight: '500', color: '#4b5563'}}>{product.artist}</p>
+                  <p className="price">€{product.price.toFixed(2)}</p>
+                  <p className="meta">{product.type} / {product.genre}</p>
+                </div>
+              </div>
+              <div className="product-actions">
+                <button onClick={() => handleEditClick(product)} className="btn btn-warning">Editar</button>
+                <button onClick={() => handleDelete(product.id)} className="btn btn-danger">Apagar</button>
+              </div>
+            </div>
+          )) : <p>Nenhum produto encontrado.</p>}
+        </div>
+      </div>
+    </div>
+  );
+}

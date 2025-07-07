@@ -1,3 +1,4 @@
+/* src/styles/header.css */
 .new-header {
   display: flex;
   justify-content: space-between;
@@ -12,20 +13,12 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  cursor: pointer; /* Indica que o logo é clicável */
 }
 
 .logo-icon {
   width: 100px;
   height: 100px;
-}
-
-.logo h1 {
-  font-size: 1.5rem;
-  color: #000519;
-}
-
-.logo h1 span {
-  color: #09a2cc;
 }
 
 .category-search {
@@ -60,24 +53,45 @@
   border-radius: 6px;
   margin-top: 5px;
   list-style: none;
-  padding: 0;
-  width: 120px;
+  padding: 10px;
+  width: 200px; /* Aumentado para acomodar mais conteúdo */
   z-index: 999;
 }
 
-.dropdown-menu li {
-  padding: 10px;
-  text-align: left;
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
 }
 
-.dropdown-menu li:hover {
+.dropdown-item label {
+  margin-left: 8px;
+  cursor: pointer;
+  color: #000519;
+}
+
+.dropdown-item:hover {
   background-color: #f0f0f0;
 }
 
-.dropdown-menu a {
-  text-decoration: none;
-  color: #000519;
-  display: block;
+.dropdown-heading {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #4a5568;
+  padding: 8px 8px 4px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.dropdown-divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 8px 0;
+}
+
+.dropdown-scrollable-list {
+  max-height: 200px; /* Altura máxima para a lista de géneros */
+  overflow-y: auto; /* Adiciona scroll se a lista for longa */
 }
 
 
@@ -108,7 +122,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .cart {
@@ -124,7 +138,7 @@
   margin-left: 0.3rem;
 }
 
-.login-btn {
+.login-btn, .logout-btn {
   background-color: #09a2cc;
   color: white;
   padding: 0.45rem 1rem;
@@ -132,4 +146,40 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.logout-btn {
+  background-color: #e53e3e;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #000519;
+  font-weight: 500;
+}
+
+.user-icon {
+  font-size: 1.5rem;
+  color: #000519;
+}
+
+.admin-link {
+  text-decoration: none;
+  color: #09a2cc;
+  font-weight: 700;
+  padding: 0.45rem 0;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.admin-link:hover {
+  border-color: #09a2cc;
+  text-decoration: none;
 }

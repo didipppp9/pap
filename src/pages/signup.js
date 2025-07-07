@@ -16,20 +16,11 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // ... (a função handleSignUp continua a mesma)
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError(null);
-    if (!name) {
-      setError('Por favor, preencha o seu nome.');
-      return;
-    }
     if (password !== confirmPassword) {
       setError('As senhas não coincidem.');
-      return;
-    }
-    if (password.length < 6) {
-      setError('A senha deve ter no mínimo 6 caracteres.');
       return;
     }
     setLoading(true);
@@ -44,13 +35,7 @@ export default function SignUpPage() {
       });
       router.push('/');
     } catch (err) {
-      if (err.code === 'auth/email-already-in-use') {
-        setError('Este email já está a ser utilizado.');
-      } else if (err.code === 'auth/invalid-email') {
-        setError('O formato do email é inválido.');
-      } else {
-        setError('Ocorreu um erro ao criar a conta. Tente novamente.');
-      }
+      setError('Ocorreu um erro ao criar a conta. Verifique os dados e tente novamente.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -60,67 +45,24 @@ export default function SignUpPage() {
   return (
     <div className="auth-container">
       <div className="auth-form">
-        {/* BOTÃO ATUALIZADO COM ESTILO DIRETO */}
-        <button
-            onClick={() => router.back()}
-            style={{
-            position: 'absolute',
-            top: '25px',    // Ajuste aqui
-            right: '25px',   // E aqui
-            background: 'none',
-            border: 'none',
-            fontSize: '1.5rem',
-            color: '#aaaaaa',
-            cursor: 'pointer',
-            padding: '0',
-            lineHeight: '1',
-        }}
-        >
-        &times;
-        </button>
-
+        <button onClick={() => router.back()} className="close-btn">&times;</button>
         <h2>Criar Conta</h2>
         <form onSubmit={handleSignUp}>
-          {/* ... resto do formulário ... */}
           <div className="form-group">
             <label htmlFor="name">Nome</label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+            <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div className="form-group">
             <label htmlFor="password">Senha</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
           <div className="form-group">
             <label htmlFor="confirm-password">Confirmar Senha</label>
-            <input
-              type="password"
-              id="confirm-password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+            <input type="password" id="confirm-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
           </div>
           {error && <p className="error-message">{error}</p>}
           <button type="submit" disabled={loading}>
