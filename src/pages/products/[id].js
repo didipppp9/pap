@@ -6,6 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase.js';
 import Header from '@/components/Header.js';
 import '../../styles/global.css';
+import { useCart } from '@/context/CartContext'; // 1. Importar o hook useCart
 
 export default function ProductDetailPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const { addToCart } = useCart(); // 2. Obter a função addToCart a partir do hook
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
@@ -35,34 +37,23 @@ export default function ProductDetailPage() {
   if (loading) return <div className="info-text">A carregar produto...</div>;
   if (!product) return <div className="info-text">Produto não encontrado.</div>;
 
-return (
-
-      <main className="page-container">
-        <div className="product-page-container">
-          <div className="product-info-column">
-            {/* Título e Preço */}
-            <h1 className="product-page-title">{product.name} - {product.category === 'CDs' ? 'CD' : 'LP'}</h1>
-            <p className="product-page-price">€{product.price.toFixed(2)}</p>
-            {/* Secção de Características */}
-            <div className="product-characteristics">
-              <h2>Características</h2>
-              <div className="characteristic-row">
-                <span className="characteristic-label">Interprete(s)</span>
-                <span className="characteristic-value">{product.artist}</span>
-              </div>
-              <div className="characteristic-row">
-                <span className="characteristic-label">Género</span>
-                <span className="characteristic-value">{product.genre}</span>
-              </div>
-              <div className="characteristic-row">
-                <span className="characteristic-label">Tipo</span>
-                <span className="characteristic-value">{product.category}</span>
-              </div>
-            </div>
-            {/* Botão Adicionar ao Carrinho */}
-            <button className="add-to-cart-btn large">Adicionar ao Carrinho</button>
+  return (
+    <main className="page-container">
+      <div className="product-page-container">
+        <div className="product-info-column">
+          {/* Título e Preço */}
+          <h1 className="product-page-title">{product.name} - {product.category === 'CDs' ? 'CD' : 'LP'}</h1>
+          <p className="product-page-price">€{product.price.toFixed(2)}</p>
+          {/* Secção de Características */}
+          <div className="product-characteristics">
+            {/* ... */}
           </div>
+          {/* 3. Chamar a função no clique do botão */}
+          <button onClick={() => addToCart(product)} className="add-to-cart-btn large">
+            Adicionar ao Carrinho
+          </button>
         </div>
-      </main>
+      </div>
+    </main>
   );
 }

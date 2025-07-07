@@ -13,7 +13,11 @@ const ProductCard = ({ product }) => (
     <div className="product-card-info">
       <p className="product-card-artist">{product.artist}</p>
       <h3 className="product-card-name">{product.name}</h3>
-      <p className="product-card-category">{product.category}</p>
+      {/* --- LINHA ALTERADA AQUI --- */}
+      {/* Verifica se product.type existe antes de tentar formatá-lo */}
+      <p className="product-card-category">
+        {product.type && (product.type.charAt(0).toUpperCase() + product.type.slice(1))}
+      </p>
       <p className="product-card-price">€{product.price.toFixed(2)}</p>
     </div>
   </a>
@@ -73,15 +77,18 @@ export default function Home() {
     const handleGenreChange = (genre) => setSelectedGenres(p => { const n = new Set(p); n.has(genre) ? n.delete(genre) : n.add(genre); return n; });
     
     const filteredProducts = products.filter(product => {
-        const typeMatch = selectedTypes.size === 0 || selectedTypes.has(product.category);
+        // A lógica de filtragem foi movida para o componente _app.js,
+        // mas vamos mantê-la aqui por segurança, caso seja necessária.
+        const typeInProduct = product.type === 'vinil' ? 'Vinis' : 'CDs';
+        const typeMatch = selectedTypes.size === 0 || selectedTypes.has(typeInProduct);
         const genreMatch = selectedGenres.size === 0 || selectedGenres.has(product.genre);
         return typeMatch && genreMatch;
     });
 
     return (
-            <main className="page-container">
-                <h2 className="page-title">Produtos</h2>
-                <ProductList products={filteredProducts} loading={loadingProducts} />
-            </main>
+        <main className="page-container">
+            <h2 className="page-title">Produtos</h2>
+            <ProductList products={filteredProducts} loading={loadingProducts} />
+        </main>
     );
 }

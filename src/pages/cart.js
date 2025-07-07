@@ -1,33 +1,45 @@
 // src/pages/cart.js
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/context/CartContext'; //
 import Link from 'next/link';
-import '@/styles/global.css';
+import { useState, useEffect } from 'react'; // Importar useState e useEffect
+import '@/styles/cart.css'; 
 
 export default function CartPage() {
-  // Usamos o nosso hook para aceder aos dados e funções do carrinho
   const { cart, removeFromCart, totalPrice } = useCart();
 
-  const handleCheckout = () => {
-    // No futuro, esta função irá iniciar o processo de pagamento
-    alert('Funcionalidade de Finalizar Compra ainda não implementada!');
-  };
+  // Estado para verificar se estamos no cliente
+  const [isClient, setIsClient] = useState(false);
 
+  // useEffect para garantir que o código só corre no cliente
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Enquanto não estivermos no cliente, mostramos um estado de carregamento
+  // para evitar o erro de hidratação.
+  if (!isClient) {
+    return (
+        <div className="container mx-auto p-8">
+            <h1 className="section-title">Carrinho de Compras</h1>
+            <p>A carregar...</p>
+        </div>
+    );
+  }
+
+  // Quando isClient for true, renderizamos o conteúdo real do carrinho
   return (
     <div className="container mx-auto p-8">
       <h1 className="section-title">Carrinho de Compras</h1>
       
-      {/* Se o carrinho estiver vazio, mostra uma mensagem */}
       {cart.length === 0 ? (
-        <div className="text-center">
+        <div className="empty-cart-message">
           <p>O seu carrinho está vazio.</p>
-          <Link href="/" className="text-cyan-600 hover:underline mt-4 inline-block">
+          <Link href="/" className="back-to-shop-link">
             Voltar à loja
           </Link>
         </div>
       ) : (
-        // Se houver itens, mostra a lista e o resumo
         <div className="cart-layout">
-          {/* Coluna dos Itens */}
           <div className="cart-items-list">
             {cart.map((item, index) => (
               <div key={`${item.id}-${index}`} className="cart-item">
@@ -45,16 +57,15 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* Coluna do Resumo */}
           <div className="cart-summary">
             <h2 className="summary-title">Resumo do Pedido</h2>
             <div className="summary-line">
               <span>Total</span>
               <span>€{totalPrice.toFixed(2)}</span>
             </div>
-            <button onClick={handleCheckout} className="checkout-btn">
+            <Link href="/checkout" className="checkout-btn">
               Finalizar Compra
-            </button>
+            </Link>
           </div>
         </div>
       )}
