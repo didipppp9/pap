@@ -1,20 +1,23 @@
 // src/pages/index.js
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, getDocs, doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase.js';
-import Header from '@/components/Header.js';
-import '../styles/global.css';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase.js';
 
-// --- CARD DE PRODUTO COMO UM LINK SIMPLES ---
+// --- CARD DE PRODUTO ---
 const ProductCard = ({ product }) => (
-  // Usando uma tag <a> normal para forçar a navegação
   <a href={`/products/${product.id}`} className="product-card">
+    <div className="product-card-image-container">
+      <img
+        src={product.imageUrl || '/placeholder.png'}
+        alt={product.name}
+        className="product-card-image"
+      />
+      {/* ETIQUETA DE EDIÇÃO ESPECIAL */}
+      {product.isSpecialEdition && <div className="special-edition-tag">Edição Especial</div>}
+    </div>
     <div className="product-card-info">
       <p className="product-card-artist">{product.artist}</p>
       <h3 className="product-card-name">{product.name}</h3>
-      {/* --- LINHA ALTERADA AQUI --- */}
-      {/* Verifica se product.type existe antes de tentar formatá-lo */}
       <p className="product-card-category">
         {product.type && (product.type.charAt(0).toUpperCase() + product.type.slice(1))}
       </p>
@@ -23,10 +26,10 @@ const ProductCard = ({ product }) => (
   </a>
 );
 
-// --- LISTA DE PRODUTOS ---
+// --- O RESTO DO FICHEIRO PERMANECE IGUAL ---
 const ProductList = ({ products, loading }) => {
   if (loading) return <p className="info-text">A carregar produtos...</p>;
-  if (products.length === 0) return <p className="info-text">Nenhum produto encontrado.</p>;
+  if (!products || products.length === 0) return <p className="info-text">Nenhum produto encontrado.</p>;
   return (
     <div className="product-grid">
       {products.map(product => <ProductCard key={product.id} product={product} />)}
@@ -34,61 +37,37 @@ const ProductList = ({ products, loading }) => {
   );
 };
 
-// --- PÁGINA HOME ---
-export default function Home() {
-    const [user, setUser] = useState(null);
-    const [products, setProducts] = useState([]);
-    const [loadingProducts, setLoadingProducts] = useState(true);
-    const [availableGenres, setAvailableGenres] = useState([]);
-    const [selectedTypes, setSelectedTypes] = useState(new Set());
-    const [selectedGenres, setSelectedGenres] = useState(new Set());
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                const userDocRef = doc(db, "users", currentUser.uid);
-                const userDoc = await getDoc(userDocRef);
-                setUser(userDoc.exists() ? { uid: currentUser.uid, ...userDoc.data() } : { uid: currentUser.uid, email: currentUser.email });
-            } else {
-                setUser(null);
-            }
-        });
-        return () => unsubscribe();
-    }, []);
+export default function Home({ selectedTypes, selectedGenres, searchTerm }) {
+    const [allProducts, setAllProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAllProducts = async () => {
-            setLoadingProducts(true);
+            setLoading(true);
             const productsRef = collection(db, "products");
             const q = query(productsRef);
             const querySnapshot = await getDocs(q);
-            const allProducts = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            setProducts(allProducts);
-            
-            const genres = new Set(allProducts.map(p => p.genre).filter(Boolean));
-            setAvailableGenres(Array.from(genres).sort());
-
-            setLoadingProducts(false);
+            const productsData = querySnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            setAllProducts(productsData);
+            setLoading(false);
         };
         fetchAllProducts();
     }, []);
 
-    const handleTypeChange = (type) => setSelectedTypes(p => { const n = new Set(p); n.has(type) ? n.delete(type) : n.add(type); return n; });
-    const handleGenreChange = (genre) => setSelectedGenres(p => { const n = new Set(p); n.has(genre) ? n.delete(genre) : n.add(genre); return n; });
-    
-    const filteredProducts = products.filter(product => {
-        // A lógica de filtragem foi movida para o componente _app.js,
-        // mas vamos mantê-la aqui por segurança, caso seja necessária.
+    const filteredProducts = allProducts.filter(product => {
         const typeInProduct = product.type === 'vinil' ? 'Vinis' : 'CDs';
-        const typeMatch = selectedTypes.size === 0 || selectedTypes.has(typeInProduct);
-        const genreMatch = selectedGenres.size === 0 || selectedGenres.has(product.genre);
-        return typeMatch && genreMatch;
+        const typeMatch = !selectedTypes || selectedTypes.size === 0 || selectedTypes.has(typeInProduct);
+        const genreMatch = !selectedGenres || selectedGenres.size === 0 || selectedGenres.has(product.genre);
+        const searchMatch = !searchTerm ||
+                            (product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                            (product.artist && product.artist.toLowerCase().includes(searchTerm.toLowerCase()));
+        return typeMatch && genreMatch && searchMatch;
     });
 
     return (
         <main className="page-container">
             <h2 className="page-title">Produtos</h2>
-            <ProductList products={filteredProducts} loading={loadingProducts} />
+            <ProductList products={filteredProducts} loading={loading} />
         </main>
     );
 }

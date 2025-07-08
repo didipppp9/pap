@@ -1,4 +1,3 @@
-// src/components/Header.js
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -17,16 +16,16 @@ export default function Header({
   selectedTypes,
   onTypeChange,
   selectedGenres,
-  onGenreChange
+  onGenreChange,
+  searchTerm,
+  onSearchChange
 }) {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   const { cart } = useCart();
 
-  // Estado para verificar se estamos no lado do cliente
   const [isClient, setIsClient] = useState(false);
 
-  // useEffect só corre no cliente, garantindo que o estado é atualizado após a montagem
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -43,10 +42,8 @@ export default function Header({
         <img src="/logo.png" alt="Sound Station" className="logo-icon" />
       </Link>
 
-      {/* Navbar com Filtros e Pesquisa */}
       <div className="category-search">
         
-        {/* Envolvemos o menu de filtros na verificação 'isClient' */}
         {isClient && (
           <div className="category-dropdown">
             <button className="category-button" onClick={toggleDropdown}>
@@ -90,11 +87,15 @@ export default function Header({
 
         <div className="search-bar">
           <FiSearch className="search-icon" />
-          <input type="text" placeholder="Search" />
+          <input 
+            type="text" 
+            placeholder="Search" 
+            value={searchTerm}
+            onChange={onSearchChange}
+          />
         </div>
       </div>
 
-      {/* Ações: Carrinho e Utilizador */}
       <div className="actions">
         <Link href="/cart" className="cart">
           <FiShoppingCart />

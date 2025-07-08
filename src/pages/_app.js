@@ -1,4 +1,4 @@
-import { CartProvider } from '@/context/CartContext.js'; // 1. Importar o CartProvider
+import { CartProvider } from '@/context/CartContext.js';
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
@@ -7,11 +7,11 @@ import Header from '@/components/Header.js';
 import '../styles/global.css';
 
 function MyApp({ Component, pageProps }) {
-  // ... (toda a sua lógica de utilizador e filtros existente)
   const [user, setUser] = useState(null);
   const [availableGenres, setAvailableGenres] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState(new Set());
   const [selectedGenres, setSelectedGenres] = useState(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -38,9 +38,10 @@ function MyApp({ Component, pageProps }) {
   
   const handleTypeChange = (type) => setSelectedTypes(p => { const n = new Set(p); n.has(type) ? n.delete(type) : n.add(type); return n; });
   const handleGenreChange = (genre) => setSelectedGenres(p => { const n = new Set(p); n.has(genre) ? n.delete(genre) : n.add(genre); return n; });
+  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+
 
   return (
-    // 2. Envolver a aplicação com o CartProvider
     <CartProvider>
       <Header
         user={user}
@@ -49,12 +50,15 @@ function MyApp({ Component, pageProps }) {
         onTypeChange={handleTypeChange}
         selectedGenres={selectedGenres}
         onGenreChange={handleGenreChange}
+        searchTerm={searchTerm}
+        onSearchChange={handleSearchChange}
       />
       <Component
         {...pageProps}
         user={user}
         selectedTypes={selectedTypes}
         selectedGenres={selectedGenres}
+        searchTerm={searchTerm}
       />
     </CartProvider>
   );

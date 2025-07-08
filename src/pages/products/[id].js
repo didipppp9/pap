@@ -1,25 +1,17 @@
 // src/pages/products/[id].js
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase.js';
-import Header from '@/components/Header.js';
+import { db } from '@/lib/firebase.js';
 import '../../styles/global.css';
-import { useCart } from '@/context/CartContext'; // 1. Importar o hook useCart
+import { useCart } from '@/context/CartContext';
 
 export default function ProductDetailPage() {
   const router = useRouter();
   const { id } = router.query;
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const { addToCart } = useCart(); // 2. Obter a função addToCart a partir do hook
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
-    return () => unsubscribe();
-  }, []);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if (id) {
@@ -40,18 +32,42 @@ export default function ProductDetailPage() {
   return (
     <main className="page-container">
       <div className="product-page-container">
-        <div className="product-info-column">
-          {/* Título e Preço */}
-          <h1 className="product-page-title">{product.name} - {product.category === 'CDs' ? 'CD' : 'LP'}</h1>
-          <p className="product-page-price">€{product.price.toFixed(2)}</p>
-          {/* Secção de Características */}
-          <div className="product-characteristics">
-            {/* ... */}
+        <div className="product-image-gallery">
+          <div className="product-main-image-container">
+            <img 
+              src={product.imageUrl || '/placeholder.png'} 
+              alt={product.name}
+              className="product-main-image"
+            />
           </div>
-          {/* 3. Chamar a função no clique do botão */}
+        </div>
+
+        <div className="product-info-column">
+          <h1 className="product-page-title">{product.name}</h1>
+          {/* INDICADOR DE EDIÇÃO ESPECIAL */}
+          {product.isSpecialEdition && <div className="special-edition-tag-detail">Edição Especial</div>}
+          
+          <p className="product-page-price">€{product.price.toFixed(2)}</p>
+          
           <button onClick={() => addToCart(product)} className="add-to-cart-btn large">
             Adicionar ao Carrinho
           </button>
+
+          <div className="product-characteristics">
+            <h2>Características</h2>
+            <div className='characteristic-row'>
+              <span className='characteristic-label'>Artista</span>
+              <span className='characteristic-value'>{product.artist}</span>
+            </div>
+            <div className='characteristic-row'>
+              <span className='characteristic-label'>Género</span>
+              <span className='characteristic-value'>{product.genre}</span>
+            </div>
+            <div className='characteristic-row'>
+              <span className='characteristic-label'>Tipo</span>
+              <span className='characteristic-value'>{product.type}</span>
+            </div>
+          </div>
         </div>
       </div>
     </main>

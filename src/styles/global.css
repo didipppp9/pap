@@ -381,3 +381,64 @@ input[type="password"] {
 .characteristic-value {
   color: #1a202c;
 }
+
+.product-card {
+  /* ... estilos existentes ... */
+  display: flex; /* Mudar para flex para melhor controlo */
+  flex-direction: column;
+}
+
+.product-card-image-container {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Força a imagem a ser quadrada */
+  background-color: #f3f4f6;
+  overflow: hidden;
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 8px 8px 0 0; /* Arredondar cantos superiores */
+}
+
+.product-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Garante que a imagem cobre o container sem distorcer */
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-card-image {
+  transform: scale(1.05); /* Efeito de zoom no hover */
+}
+
+.product-card-info {
+  /* ... estilos existentes ... */
+  flex-grow: 1; /* Garante que esta div ocupa o espaço restante */
+}
+
+/* Etiqueta no card do produto */
+.product-card-image-container {
+  position: relative; /* Necessário para posicionar a etiqueta */
+}
+
+.special-edition-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #f0c419;
+  color: #212529;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-radius: 5px;
+  z-index: 10;
+}
+
+/* Etiqueta na página de detalhe */
+.special-edition-tag-detail {
+  display: inline-block;
+  background-color: #e9ecef;
+  color: #495057;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}

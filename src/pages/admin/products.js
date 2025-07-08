@@ -18,12 +18,13 @@ export default function ManageProducts() {
   const [type, setType] = useState('cd');
   const [genre, setGenre] = useState('alt metal');
   const [price, setPrice] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [isSpecialEdition, setIsSpecialEdition] = useState(false); // NOVO ESTADO
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // ===== LINHA ALTERADA AQUI =====
   const genres = ["Alt Metal", "Grunge", "Groove Metal", "Metalcore", "Nu-Metal", "Punk Rock", "Speed Metal", "Trash Metal"];
 
   useEffect(() => {
@@ -52,6 +53,8 @@ export default function ManageProducts() {
     setType('cd');
     setGenre('alt metal');
     setPrice('');
+    setImageUrl('');
+    setIsSpecialEdition(false); // Limpar checkbox
     document.getElementById('product-form').reset();
   };
   
@@ -64,6 +67,8 @@ export default function ManageProducts() {
     setType(product.type);
     setGenre(product.genre);
     setPrice(product.price);
+    setImageUrl(product.imageUrl || '');
+    setIsSpecialEdition(product.isSpecialEdition || false); // Preencher checkbox
     window.scrollTo(0, 0);
   };
 
@@ -79,7 +84,8 @@ export default function ManageProducts() {
     setSuccessMessage('');
 
     try {
-      const productData = { name, artist, type, genre, price: parseFloat(price) };
+      // Incluir isSpecialEdition nos dados do produto
+      const productData = { name, artist, type, genre, price: parseFloat(price), imageUrl, isSpecialEdition };
 
       if (isEditing) {
         await updateDoc(doc(db, 'products', isEditing), productData);
@@ -122,6 +128,7 @@ export default function ManageProducts() {
 
         <form id="product-form" onSubmit={handleSubmit}>
           <div className="form-grid">
+            {/* ... campos existentes ... */}
             <div className="form-group">
               <label htmlFor="name" className="form-label">Nome do Produto</label>
               <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} className="form-input" />
@@ -129,6 +136,10 @@ export default function ManageProducts() {
             <div className="form-group">
               <label htmlFor="artist" className="form-label">Artista / Banda</label>
               <input type="text" id="artist" value={artist} onChange={(e) => setArtist(e.target.value)} className="form-input" />
+            </div>
+            <div className="form-group full-width">
+              <label htmlFor="imageUrl" className="form-label">URL da Imagem</label>
+              <input type="text" id="imageUrl" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="form-input" placeholder="Ex: /images/album.jpg" />
             </div>
             <div className="form-group">
               <label htmlFor="price" className="form-label">Preço (€)</label>
@@ -146,6 +157,11 @@ export default function ManageProducts() {
               <select id="genre" value={genre} onChange={(e) => setGenre(e.target.value)} className="form-select">
                 {genres.map(g => <option key={g} value={g.toLowerCase()}>{g}</option>)}
               </select>
+            </div>
+            {/* NOVA CHECKBOX */}
+            <div className="form-group checkbox-group">
+              <input type="checkbox" id="isSpecialEdition" checked={isSpecialEdition} onChange={(e) => setIsSpecialEdition(e.target.checked)} className="form-checkbox" />
+              <label htmlFor="isSpecialEdition" className="form-label">Edição Especial</label>
             </div>
           </div>
           
@@ -171,9 +187,14 @@ export default function ManageProducts() {
           {filteredProducts.length > 0 ? filteredProducts.map(product => (
             <div key={product.id} className="product-item">
               <div className="product-info">
+                <img src={product.imageUrl || '/placeholder.png'} alt={product.name} className="product-thumbnail" />
                 <div className="product-details">
-                  <p className="name">{product.name}</p>
-                  <p className="artist" style={{fontWeight: '500', color: '#4b5563'}}>{product.artist}</p>
+                  <p className="name">
+                    {product.name}
+                    {/* INDICADOR DE EDIÇÃO ESPECIAL */}
+                    {product.isSpecialEdition && <span className="special-edition-tag-admin">Especial</span>}
+                  </p>
+                  <p className="artist">{product.artist}</p>
                   <p className="price">€{product.price.toFixed(2)}</p>
                   <p className="meta">{product.type} / {product.genre}</p>
                 </div>
