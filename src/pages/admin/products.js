@@ -12,6 +12,7 @@ export default function ManageProducts() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Estado do formulário
   const [isEditing, setIsEditing] = useState(null);
   const [name, setName] = useState('');
   const [artist, setArtist] = useState('');
@@ -19,7 +20,8 @@ export default function ManageProducts() {
   const [genre, setGenre] = useState('alt metal');
   const [price, setPrice] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [isSpecialEdition, setIsSpecialEdition] = useState(false); // NOVO ESTADO
+  const [isSpecialEdition, setIsSpecialEdition] = useState(false);
+  const [isActive, setIsActive] = useState(true);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,8 +56,11 @@ export default function ManageProducts() {
     setGenre('alt metal');
     setPrice('');
     setImageUrl('');
-    setIsSpecialEdition(false); // Limpar checkbox
-    document.getElementById('product-form').reset();
+    setIsSpecialEdition(false);
+    setIsActive(true);
+    if (document.getElementById('product-form')) {
+      document.getElementById('product-form').reset();
+    }
   };
   
   const handleEditClick = (product) => {
@@ -68,8 +73,20 @@ export default function ManageProducts() {
     setGenre(product.genre);
     setPrice(product.price);
     setImageUrl(product.imageUrl || '');
-    setIsSpecialEdition(product.isSpecialEdition || false); // Preencher checkbox
+    setIsSpecialEdition(product.isSpecialEdition || false);
+    setIsActive(product.isActive !== false);
     window.scrollTo(0, 0);
+  };
+
+  const handleToggleActive = async (product) => {
+    const newStatus = !(product.isActive !== false);
+    const productRef = doc(db, 'products', product.id);
+    try {
+      await updateDoc(productRef, { isActive: newStatus });
+      setSuccessMessage(`Produto ${product.name} foi ${newStatus ? 'ativado' : 'desativado'}.`);
+    } catch (err) {
+      setError("Erro ao atualizar o estado do produto.");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -84,8 +101,7 @@ export default function ManageProducts() {
     setSuccessMessage('');
 
     try {
-      // Incluir isSpecialEdition nos dados do produto
-      const productData = { name, artist, type, genre, price: parseFloat(price), imageUrl, isSpecialEdition };
+      const productData = { name, artist, type, genre, price: parseFloat(price), imageUrl, isSpecialEdition, isActive };
 
       if (isEditing) {
         await updateDoc(doc(db, 'products', isEditing), productData);
@@ -120,6 +136,7 @@ export default function ManageProducts() {
     <div className="admin-container">
       <h1 className="admin-title">Gerir Produtos</h1>
 
+      {/* FORMULÁRIO DE ADICIONAR/EDITAR PRODUTO */}
       <div className="card">
         <h2 className="card-title">{isEditing ? 'Editar Produto' : 'Adicionar Novo Produto'}</h2>
         
@@ -128,7 +145,6 @@ export default function ManageProducts() {
 
         <form id="product-form" onSubmit={handleSubmit}>
           <div className="form-grid">
-            {/* ... campos existentes ... */}
             <div className="form-group">
               <label htmlFor="name" className="form-label">Nome do Produto</label>
               <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} className="form-input" />
@@ -158,11 +174,12 @@ export default function ManageProducts() {
                 {genres.map(g => <option key={g} value={g.toLowerCase()}>{g}</option>)}
               </select>
             </div>
-            {/* NOVA CHECKBOX */}
-            <div className="form-group checkbox-group">
-              <input type="checkbox" id="isSpecialEdition" checked={isSpecialEdition} onChange={(e) => setIsSpecialEdition(e.target.checked)} className="form-checkbox" />
-              <label htmlFor="isSpecialEdition" className="form-label">Edição Especial</label>
-            </div>
+             <div className="form-group full-width">
+                <div className="styled-checkbox-container">
+                  <label htmlFor="isSpecialEdition" className="styled-checkbox-label">Limited Edition</label>
+                  <input type="checkbox" id="isSpecialEdition" checked={isSpecialEdition} onChange={(e) => setIsSpecialEdition(e.target.checked)} className="styled-checkbox-input" />
+                </div>
+              </div>
           </div>
           
           <div className="form-actions" style={{marginTop: '1rem'}}>
@@ -178,6 +195,7 @@ export default function ManageProducts() {
         </form>
       </div>
 
+      {/* LISTA DE PRODUTOS EXISTENTES */}
       <div className="card">
         <div className="list-header">
           <h2 className="card-title">Produtos Existentes</h2>
@@ -185,14 +203,13 @@ export default function ManageProducts() {
         </div>
         <div className="product-list">
           {filteredProducts.length > 0 ? filteredProducts.map(product => (
-            <div key={product.id} className="product-item">
+            <div key={product.id} className={`product-item ${!(product.isActive !== false) ? 'inactive' : ''}`}>
               <div className="product-info">
                 <img src={product.imageUrl || '/placeholder.png'} alt={product.name} className="product-thumbnail" />
                 <div className="product-details">
                   <p className="name">
                     {product.name}
-                    {/* INDICADOR DE EDIÇÃO ESPECIAL */}
-                    {product.isSpecialEdition && <span className="special-edition-tag-admin">Especial</span>}
+                    {product.isSpecialEdition && <span className="special-edition-tag-admin">Limited</span>}
                   </p>
                   <p className="artist">{product.artist}</p>
                   <p className="price">€{product.price.toFixed(2)}</p>
@@ -200,6 +217,13 @@ export default function ManageProducts() {
                 </div>
               </div>
               <div className="product-actions">
+                <div className="status-toggle">
+                  <span>{product.isActive !== false ? 'Ativo' : 'Inativo'}</span>
+                  <label className="switch">
+                    <input type="checkbox" checked={product.isActive !== false} onChange={() => handleToggleActive(product)} />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
                 <button onClick={() => handleEditClick(product)} className="btn btn-warning">Editar</button>
                 <button onClick={() => handleDelete(product.id)} className="btn btn-danger">Apagar</button>
               </div>

@@ -12,8 +12,7 @@ const ProductCard = ({ product }) => (
         alt={product.name}
         className="product-card-image"
       />
-      {/* ETIQUETA DE EDIÇÃO ESPECIAL */}
-      {product.isSpecialEdition && <div className="special-edition-tag">Edição Especial</div>}
+      {product.isSpecialEdition && <div className="special-edition-tag">Limited Edition</div>}
     </div>
     <div className="product-card-info">
       <p className="product-card-artist">{product.artist}</p>
@@ -26,7 +25,7 @@ const ProductCard = ({ product }) => (
   </a>
 );
 
-// --- O RESTO DO FICHEIRO PERMANECE IGUAL ---
+// --- LISTA DE PRODUTOS ---
 const ProductList = ({ products, loading }) => {
   if (loading) return <p className="info-text">A carregar produtos...</p>;
   if (!products || products.length === 0) return <p className="info-text">Nenhum produto encontrado.</p>;
@@ -37,10 +36,12 @@ const ProductList = ({ products, loading }) => {
   );
 };
 
+// --- PÁGINA HOME ---
 export default function Home({ selectedTypes, selectedGenres, searchTerm }) {
     const [allProducts, setAllProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Efeito para ir buscar todos os produtos à base de dados uma única vez
     useEffect(() => {
         const fetchAllProducts = async () => {
             setLoading(true);
@@ -54,13 +55,21 @@ export default function Home({ selectedTypes, selectedGenres, searchTerm }) {
         fetchAllProducts();
     }, []);
 
+    // Filtra os produtos com base nos filtros e pesquisa recebidos
     const filteredProducts = allProducts.filter(product => {
+        // Primeiro, verifica se o produto está ativo. Se isActive for false, não o mostra.
+        if (product.isActive === false) {
+          return false;
+        }
+
         const typeInProduct = product.type === 'vinil' ? 'Vinis' : 'CDs';
+        
         const typeMatch = !selectedTypes || selectedTypes.size === 0 || selectedTypes.has(typeInProduct);
         const genreMatch = !selectedGenres || selectedGenres.size === 0 || selectedGenres.has(product.genre);
         const searchMatch = !searchTerm ||
                             (product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
                             (product.artist && product.artist.toLowerCase().includes(searchTerm.toLowerCase()));
+
         return typeMatch && genreMatch && searchMatch;
     });
 

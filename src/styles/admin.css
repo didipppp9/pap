@@ -213,3 +213,232 @@
   border-radius: 9999px;
   vertical-align: middle;
 }
+
+/* Em src/styles/admin.css, pode remover a classe .checkbox-group e .form-checkbox */
+/* e adicionar estas novas classes no fim do ficheiro. */
+
+.styled-checkbox-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid #343a40; /* Borda preta/cinza escura */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.styled-checkbox-container:has(.styled-checkbox-input:checked) {
+  background-color: #e0f2f7; /* Fundo azul claro quando selecionado */
+  border-color: #09a2cc;
+}
+
+.styled-checkbox-label {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #343a40;
+}
+
+.styled-checkbox-container:has(.styled-checkbox-input:checked) .styled-checkbox-label {
+  color: #078aa8;
+}
+
+.styled-checkbox-input {
+  /* Estilo para a checkbox, tornando-a maior */
+  width: 24px;
+  height: 24px;
+  accent-color: #09a2cc; /* Cor da checkbox quando marcada */
+  cursor: pointer;
+}
+
+.admin-dashboard-layout {
+  display: flex;
+  /* Ocupa 100% da altura da janela de visualização, menos a altura do header (aprox. 117px) */
+  height: calc(100vh - 117px); 
+  width: 100%;
+  background-color: #f8f9fa; /* Cor de fundo geral */
+}
+
+.dashboard-panel {
+  flex: 1; /* Faz com que cada painel ocupe 50% do espaço */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: #343a40; /* Cor do texto padrão */
+  background-color: #ffffff;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dashboard-panel.left-panel {
+  border-right: 2px solid #f8f9fa; /* Linha separadora */
+}
+
+.dashboard-panel:hover {
+  background-color: #09a2cc; /* Cor de destaque ao passar o rato */
+}
+
+.dashboard-panel:hover h2 {
+  color: white; /* Cor do texto ao passar o rato */
+}
+
+.panel-content h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+/* Mantenha os outros estilos como .admin-container, .admin-title, .card, etc., */
+/* pois são usados nas outras páginas de administração (produtos e utilizadores). */
+.admin-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: calc(100vh - 117px);
+}
+
+.admin-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  color: #343a40;
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 1rem;
+}
+
+.card {
+  background-color: #ffffff;
+  padding: 1.5rem 2rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+.user-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+.btn-success:hover {
+  background-color: #218838;
+}
+
+.status-tag {
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-blocked {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Estilo para a linha do utilizador bloqueado */
+.blocked-user {
+  background-color: #fceeee !important;
+  opacity: 0.7;
+}
+
+.blocked-user .user-name {
+  text-decoration: line-through;
+}
+.product-item.inactive {
+  background-color: #fef2f2; /* Fundo avermelhado claro */
+  border-left: 4px solid #ef4444; /* Borda vermelha para destaque */
+  opacity: 0.7;
+}
+
+.product-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Estilos do Interruptor (Switch) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #28a745; /* Cor verde para "Ativo" */
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #28a745;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

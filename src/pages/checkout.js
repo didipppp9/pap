@@ -1,5 +1,5 @@
 // src/pages/checkout.js
-import { useState, useEffect } from 'react'; // Importar useEffect
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/router';
 import AddressForm from '@/components/AddressForm';
@@ -10,15 +10,16 @@ export default function CheckoutPage() {
   const { cart, totalPrice, clearCart } = useCart();
   const router = useRouter();
 
-  // 1. Estado para verificar se estamos no lado do cliente
   const [isClient, setIsClient] = useState(false);
 
-  // 2. useEffect para garantir que o código só corre no cliente
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  // Adicionar firstName e lastName ao estado inicial
   const [address, setAddress] = useState({
+    firstName: '',
+    lastName: '',
     street: '',
     doorNumber: '',
     floor: '',
@@ -28,8 +29,9 @@ export default function CheckoutPage() {
   });
 
   const handleProcessOrder = () => {
-    if (!address.street || !address.doorNumber || !address.postalCode || !address.phone) {
-      alert('Por favor, preencha todos os campos obrigatórios da morada e o número de MB Way.');
+    // Adicionar validação para firstName e lastName
+    if (!address.firstName || !address.lastName || !address.street || !address.doorNumber || !address.postalCode || !address.phone) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -45,7 +47,6 @@ export default function CheckoutPage() {
     router.push('/');
   };
   
-  // 3. Enquanto não estivermos no cliente, mostramos um estado de carregamento
   if (!isClient) {
     return (
         <div className="container checkout-container">
@@ -55,13 +56,11 @@ export default function CheckoutPage() {
     );
   }
 
-  // Se o carrinho estiver vazio (já no cliente), redireciona para a página inicial
   if (cart.length === 0) {
     router.push('/');
-    return null; // Não renderiza nada enquanto redireciona
+    return null;
   }
 
-  // 4. Se estivermos no cliente e o carrinho tiver itens, renderiza a página
   return (
     <div className="container checkout-container">
       <h1 className="section-title">Finalizar Compra</h1>

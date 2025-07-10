@@ -166,3 +166,26 @@
     justify-content: space-between;
   }
 }
+
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+.quantity-selector button {
+  background: none;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #4a5568;
+}
+
+.quantity-selector span {
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}

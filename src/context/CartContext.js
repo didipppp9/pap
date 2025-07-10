@@ -1,5 +1,8 @@
 // src/context/CartContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, doc, getDocs, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { useAuth } from './AuthContext'; // Vamos criar este novo contexto
 
 const CartContext = createContext();
 
@@ -8,53 +11,84 @@ export function useCart() {
 }
 
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState(() => {
-    if (typeof window === 'undefined') {
-      return [];
-    }
-    try {
-      const savedCart = window.localStorage.getItem('shopping-cart');
-      return savedCart ? JSON.parse(savedCart) : [];
-    } catch (error) {
-      return [];
-    }
-  });
+  const { user } = useAuth();
+  const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem('shopping-cart', JSON.stringify(cart));
-    } catch (error) {
-      console.error("Failed to save cart to localStorage", error);
+    if (user) {
+      setLoading(true);
+      const cartRef = collection(db, 'users', user.uid, 'cart');
+      const unsubscribe = onSnapshot(cartRef, (snapshot) => {
+        const cartData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+        setCart(cartData);
+        setLoading(false);
+      });
+      return () => unsubscribe();
+    } else {
+      // Se não houver utilizador, o carrinho fica vazio
+      setCart([]);
+      setLoading(false);
     }
-  }, [cart]);
+  }, [user]);
 
-  const addToCart = (product) => {
-    setCart((prevCart) => [...prevCart, product]);
-    alert(`${product.name} foi adicionado ao carrinho!`);
+  const addToCart = async (product) => {
+    if (!user) {
+      alert("Por favor, faça login para adicionar produtos ao carrinho.");
+      return;
+    }
+    
+    const cartRef = collection(db, 'users', user.uid, 'cart');
+    const productRef = doc(cartRef, product.id);
+
+    // Verifica se o produto já existe no carrinho
+    const existingItem = cart.find(item => item.id === product.id);
+    if (existingItem) {
+      // Se existe, incrementa a quantidade
+      await setDoc(productRef, { ...existingItem, quantity: existingItem.quantity + 1 });
+    } else {
+      // Se não existe, adiciona com quantidade 1
+      await setDoc(productRef, { ...product, quantity: 1 });
+    }
   };
 
-  const removeFromCart = (productId) => {
-    const indexToRemove = cart.findIndex(item => item.id === productId);
-    if (indexToRemove > -1) {
-      const newCart = [...cart];
-      newCart.splice(indexToRemove, 1);
-      setCart(newCart);
+  const updateQuantity = async (productId, newQuantity) => {
+    if (!user) return;
+    const productRef = doc(db, 'users', user.uid, 'cart', productId);
+    if (newQuantity > 0) {
+      await setDoc(productRef, { quantity: newQuantity }, { merge: true });
+    } else {
+      // Remove o item se a quantidade for 0 ou menos
+      await deleteDoc(productRef);
     }
+  };
+
+  const removeFromCart = async (productId) => {
+    if (!user) return;
+    const productRef = doc(db, 'users', user.uid, 'cart', productId);
+    await deleteDoc(productRef);
   };
   
-  // Nova função para limpar o carrinho
-  const clearCart = () => {
-    setCart([]);
+  const clearCart = async () => {
+    if (!user) return;
+    const cartSnapshot = await getDocs(collection(db, 'users', user.uid, 'cart'));
+    cartSnapshot.forEach((doc) => {
+      deleteDoc(doc.ref);
+    });
   };
 
-  const totalPrice = cart.reduce((total, item) => total + item.price, 0);
+  const totalPrice = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
   const value = {
     cart,
+    loading,
     addToCart,
+    updateQuantity,
     removeFromCart,
     totalPrice,
-    clearCart, // Adicionar a função ao contexto
+    totalItems,
+    clearCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
