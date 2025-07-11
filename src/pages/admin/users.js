@@ -18,7 +18,12 @@ export default function ManageUsers() {
     setLoading(true);
     const unsubscribe = onSnapshot(collection(db, 'users'), (snapshot) => {
       const usersList = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .map(doc => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          // Converte o timestamp do Firebase para um objeto Date do JavaScript
+          createdAt: doc.data().createdAt?.toDate() 
+        }))
         .filter(user => user.role !== 'admin');
       setUsers(usersList);
       setLoading(false);
@@ -71,6 +76,7 @@ export default function ManageUsers() {
             <thead>
               <tr>
                 <th>Utilizador</th>
+                <th>Data de Criação</th>
                 <th>Estado</th>
                 <th className="user-actions">Ações</th>
               </tr>
@@ -82,7 +88,13 @@ export default function ManageUsers() {
                     <div className="user-info">
                       <div className="user-name">{user.name}</div>
                       <div className="user-email">{user.email}</div>
+                      {/* Mostra o UID do utilizador */}
+                      <div className="user-id">UID: {user.id}</div>
                     </div>
+                  </td>
+                  <td>
+                    {/* Formata a data de criação para ser mais legível */}
+                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
                   </td>
                   <td>
                     <span className={`status-tag ${user.blocked ? 'status-blocked' : 'status-active'}`}>
@@ -106,7 +118,7 @@ export default function ManageUsers() {
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan="3" style={{ textAlign: 'center', padding: '2rem' }}>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '2rem' }}>
                     Não existem utilizadores registados.
                   </td>
                 </tr>

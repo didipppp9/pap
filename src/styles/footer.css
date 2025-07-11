@@ -1,0 +1,80 @@
+/* src/styles/footer.css */
+.footer {
+  background-color: #1a202c; /* Cor escura para o fundo */
+  color: #a0aec0; /* Cor de texto cinza claro */
+  padding: 2.5rem 1rem 1rem;
+  border-top: 4px solid #09a2cc; /* Linha azul no topo, cor primária do site */
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 200px; /* Largura mínima para cada secção */
+}
+
+.footer-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff; /* Títulos a branco para destaque */
+  margin-bottom: 1rem;
+}
+
+.footer-section p,
+.footer-section ul {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul a {
+  text-decoration: none;
+  color: #a0aec0;
+  transition: color 0.2s;
+}
+
+.footer-section ul a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.social-icons a {
+  color: #a0aec0;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  transition: color 0.2s;
+}
+
+.social-icons a:hover {
+  color: #09a2cc; /* Cor de destaque ao passar o rato */
+}
+
+.footer-bottom {
+  text-align: center;
+  font-size: 0.875rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #2d3748; /* Linha separadora subtil */
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+}

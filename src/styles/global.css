@@ -82,24 +82,6 @@ input[type="password"] {
   max-width: 400px;
 }
 
-.auth-form .close-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: transparent !important;
-  border: none;
-  padding: 0;
-  font-size: 1.5rem;
-  line-height: 1;
-  color: #aaaaaa;
-  cursor: pointer;
-  transition: color 0.2s ease-in-out;
-}
-
-.auth-form .close-btn:hover {
-  color: #333333;
-}
-
 .auth-form h2 {
   margin-bottom: 1.5rem;
   text-align: center;
@@ -389,6 +371,7 @@ input[type="password"] {
 }
 
 .product-card-image-container {
+  position: relative; /* Adicionado para conter a etiqueta */
   width: 100%;
   aspect-ratio: 1 / 1; /* Força a imagem a ser quadrada */
   background-color: #f3f4f6;
@@ -438,4 +421,48 @@ input[type="password"] {
   font-weight: 600;
   font-size: 0.9rem;
   margin-bottom: 1.5rem; /* Ajustar espaçamento */
+}
+
+/* Estilos para o layout da aplicação */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1; /* Faz com que o conteúdo principal ocupe o espaço disponível */
+}
+
+.price-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.promo-price {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #dc2626; /* Vermelho para destaque */
+}
+
+.original-price {
+  font-size: 0.9rem;
+  color: #6b7280;
+  text-decoration: line-through; /* Preço original riscado */
+}
+
+.promo-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #dc2626;
+  color: white;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
 }

@@ -16,7 +16,6 @@ export default function CheckoutPage() {
     setIsClient(true);
   }, []);
 
-  // Adicionar firstName e lastName ao estado inicial
   const [address, setAddress] = useState({
     firstName: '',
     lastName: '',
@@ -28,8 +27,7 @@ export default function CheckoutPage() {
     phone: '',
   });
 
-  const handleProcessOrder = () => {
-    // Adicionar validação para firstName e lastName
+  const handleProcessOrder = () => { // A função deixa de ser async
     if (!address.firstName || !address.lastName || !address.street || !address.doorNumber || !address.postalCode || !address.phone) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
@@ -44,7 +42,7 @@ export default function CheckoutPage() {
     alert('Encomenda finalizada com sucesso! Obrigado pela sua compra.');
     
     clearCart();
-    router.push('/');
+    router.push('/'); // Redireciona para a página inicial
   };
   
   if (!isClient) {

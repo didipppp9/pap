@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase.js';
 import Header from '@/components/Header.js';
+import Footer from '@/components/Footer.js';
+import Head from 'next/head'; // 1. Importar o componente Head
 import '../styles/global.css';
 
 function MyApp({ Component, pageProps }) {
@@ -30,21 +32,33 @@ function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
       <CartProvider>
-        <Header
-          availableGenres={availableGenres}
-          selectedTypes={selectedTypes}
-          onTypeChange={handleTypeChange}
-          selectedGenres={selectedGenres}
-          onGenreChange={handleGenreChange}
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-        />
-        <Component
-          {...pageProps}
-          selectedTypes={selectedTypes}
-          selectedGenres={selectedGenres}
-          searchTerm={searchTerm}
-        />
+        {/* 2. Adicionar o Head antes do conteúdo principal */}
+        <Head>
+          <title>Sound Station</title>
+          <link rel="icon" href="/logo.png" type="image/png" />
+          <link rel="apple-touch-icon" href="/logo.png" />
+        </Head>
+
+        <div className="app-wrapper">
+          <Header
+            availableGenres={availableGenres}
+            selectedTypes={selectedTypes}
+            onTypeChange={handleTypeChange}
+            selectedGenres={selectedGenres}
+            onGenreChange={handleGenreChange}
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+          />
+          <main className="main-content">
+            <Component
+              {...pageProps}
+              selectedTypes={selectedTypes}
+              selectedGenres={selectedGenres}
+              searchTerm={searchTerm}
+            />
+          </main>
+          <Footer />
+        </div>
       </CartProvider>
     </AuthProvider>
   );

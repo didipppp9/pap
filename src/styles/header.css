@@ -183,3 +183,14 @@
   border-color: #09a2cc;
   text-decoration: none;
 }
+
+.user-info .user-icon {
+  font-size: 1.5rem;
+  color: #000519;
+  cursor: pointer; /* Adiciona o cursor de ponteiro */
+  transition: color 0.2s;
+}
+
+.user-info .user-icon:hover {
+  color: #09a2cc; /* Muda a cor ao passar o rato */
+}

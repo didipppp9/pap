@@ -8,13 +8,13 @@ import '../styles/header.css';
 import { FiSearch, FiShoppingCart } from 'react-icons/fi';
 import { FaThLarge, FaUserCircle } from 'react-icons/fa';
 import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext'; // Usar o novo AuthContext
+import { useAuth } from '@/context/AuthContext';
 
 export default function Header({ availableGenres, selectedTypes, onTypeChange, selectedGenres, onGenreChange, searchTerm, onSearchChange }) {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
-  const { user } = useAuth(); // Obter user do context
-  const { totalItems } = useCart(); // Obter total de itens do context
+  const { user } = useAuth();
+  const { totalItems } = useCart();
 
   const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
   const handleLogout = async () => {
@@ -24,10 +24,11 @@ export default function Header({ availableGenres, selectedTypes, onTypeChange, s
 
   return (
     <header className="new-header">
-      <Link href="/" className="logo">
+      <a href="/" className="logo">
         <img src="/logo.png" alt="Sound Station" className="logo-icon" />
-      </Link>
+      </a>
       <div className="category-search">
+        {/* ... (código do dropdown e pesquisa) ... */}
         <div className="category-dropdown">
           <button className="category-button" onClick={toggleDropdown}>
             <FaThLarge /> Filtros
@@ -67,7 +68,10 @@ export default function Header({ availableGenres, selectedTypes, onTypeChange, s
         <div className="user-actions">
           {user ? (
             <div className="user-info">
-              <FaUserCircle className="user-icon" />
+              {/* Ícone agora é um link para a página de perfil */}
+              <Link href="/profile">
+                <FaUserCircle className="user-icon" />
+              </Link>
               <span>Olá, {user.name || user.email.split('@')[0]}</span>
               {user.role === 'admin' && (
                 <Link href="/admin" className="admin-link">Painel Admin</Link>

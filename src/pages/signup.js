@@ -45,7 +45,6 @@ export default function SignUpPage() {
   return (
     <div className="auth-container">
       <div className="auth-form">
-        <button onClick={() => router.back()} className="close-btn">&times;</button>
         <h2>Criar Conta</h2>
         <form onSubmit={handleSignUp}>
           <div className="form-group">

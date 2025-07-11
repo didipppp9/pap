@@ -45,7 +45,6 @@ export default function LoginPage() {
   return (
     <div className="auth-container">
       <div className="auth-form">
-        <button onClick={() => router.back()} className="close-btn">&times;</button>
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
           <div className="form-group">

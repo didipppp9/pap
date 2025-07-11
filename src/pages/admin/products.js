@@ -23,6 +23,12 @@ export default function ManageProducts() {
   const [isSpecialEdition, setIsSpecialEdition] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
+  // 1. Adicionar estado para os campos de promoção
+  const [promoPrice, setPromoPrice] = useState('');
+  const [promoStartDate, setPromoStartDate] = useState('');
+  const [promoEndDate, setPromoEndDate] = useState('');
+
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -58,6 +64,10 @@ export default function ManageProducts() {
     setImageUrl('');
     setIsSpecialEdition(false);
     setIsActive(true);
+    // 2. Limpar os campos de promoção
+    setPromoPrice('');
+    setPromoStartDate('');
+    setPromoEndDate('');
     if (document.getElementById('product-form')) {
       document.getElementById('product-form').reset();
     }
@@ -75,6 +85,10 @@ export default function ManageProducts() {
     setImageUrl(product.imageUrl || '');
     setIsSpecialEdition(product.isSpecialEdition || false);
     setIsActive(product.isActive !== false);
+    // 3. Preencher os campos de promoção ao editar
+    setPromoPrice(product.promoPrice || '');
+    setPromoStartDate(product.promoStartDate || '');
+    setPromoEndDate(product.promoEndDate || '');
     window.scrollTo(0, 0);
   };
 
@@ -101,7 +115,20 @@ export default function ManageProducts() {
     setSuccessMessage('');
 
     try {
-      const productData = { name, artist, type, genre, price: parseFloat(price), imageUrl, isSpecialEdition, isActive };
+      // 4. Adicionar os dados da promoção ao objeto do produto
+      const productData = { 
+        name, 
+        artist, 
+        type, 
+        genre, 
+        price: parseFloat(price), 
+        imageUrl, 
+        isSpecialEdition, 
+        isActive,
+        promoPrice: promoPrice ? parseFloat(promoPrice) : null,
+        promoStartDate: promoStartDate || null,
+        promoEndDate: promoEndDate || null,
+      };
 
       if (isEditing) {
         await updateDoc(doc(db, 'products', isEditing), productData);
@@ -136,7 +163,6 @@ export default function ManageProducts() {
     <div className="admin-container">
       <h1 className="admin-title">Gerir Produtos</h1>
 
-      {/* FORMULÁRIO DE ADICIONAR/EDITAR PRODUTO */}
       <div className="card">
         <h2 className="card-title">{isEditing ? 'Editar Produto' : 'Adicionar Novo Produto'}</h2>
         
@@ -144,6 +170,7 @@ export default function ManageProducts() {
         {successMessage && <p style={{color: '#16a34a', marginBottom: '1rem', fontWeight: '500'}}>{successMessage}</p>}
 
         <form id="product-form" onSubmit={handleSubmit}>
+          {/* ... (campos existentes do formulário) ... */}
           <div className="form-grid">
             <div className="form-group">
               <label htmlFor="name" className="form-label">Nome do Produto</label>
@@ -182,6 +209,26 @@ export default function ManageProducts() {
               </div>
           </div>
           
+          {/* 5. Adicionar campos da promoção ao formulário */}
+          <div className="promo-section">
+            <h3 className="card-subtitle">Promoção (Opcional)</h3>
+            <div className="form-grid">
+              <div className="form-group">
+                <label htmlFor="promoPrice" className="form-label">Preço Promocional (€)</label>
+                <input type="number" step="0.01" id="promoPrice" value={promoPrice} onChange={(e) => setPromoPrice(e.target.value)} className="form-input" />
+              </div>
+              <div className="form-group">
+                <label htmlFor="promoStartDate" className="form-label">Início da Promoção</label>
+                <input type="date" id="promoStartDate" value={promoStartDate} onChange={(e) => setPromoStartDate(e.target.value)} className="form-input" />
+              </div>
+              <div className="form-group">
+                <label htmlFor="promoEndDate" className="form-label">Fim da Promoção</label>
+                <input type="date" id="promoEndDate" value={promoEndDate} onChange={(e) => setPromoEndDate(e.target.value)} className="form-input" />
+              </div>
+            </div>
+          </div>
+
+
           <div className="form-actions" style={{marginTop: '1rem'}}>
             <button type="submit" disabled={loading} className="btn btn-primary">
               {loading ? 'A guardar...' : (isEditing ? 'Atualizar Produto' : 'Adicionar Produto')}
@@ -195,7 +242,7 @@ export default function ManageProducts() {
         </form>
       </div>
 
-      {/* LISTA DE PRODUTOS EXISTENTES */}
+      {/* ... (lista de produtos) ... */}
       <div className="card">
         <div className="list-header">
           <h2 className="card-title">Produtos Existentes</h2>
