@@ -1,13 +1,17 @@
 // src/pages/checkout.js
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/router';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import AddressForm from '@/components/AddressForm';
 import MbwayPayment from '@/components/MbwayPayment';
 import '@/styles/checkout.css';
 
 export default function CheckoutPage() {
   const { cart, totalPrice, clearCart } = useCart();
+  const { user } = useAuth();
   const router = useRouter();
 
   const [isClient, setIsClient] = useState(false);
@@ -27,22 +31,35 @@ export default function CheckoutPage() {
     phone: '',
   });
 
-  const handleProcessOrder = () => { // A função deixa de ser async
+  const handleProcessOrder = async () => {
+    if (!user) {
+      alert('Ocorreu um erro. Por favor, tente fazer login novamente.');
+      return;
+    }
     if (!address.firstName || !address.lastName || !address.street || !address.doorNumber || !address.postalCode || !address.phone) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
-    console.log('Encomenda a ser processada:', {
-      products: cart,
-      total: totalPrice,
-      shippingAddress: address,
-    });
+    try {
+      await addDoc(collection(db, "orders"), {
+        userId: user.uid,
+        products: cart,
+        totalPrice: totalPrice,
+        shippingAddress: address,
+        createdAt: serverTimestamp(),
+      });
 
-    alert('Encomenda finalizada com sucesso! Obrigado pela sua compra.');
-    
-    clearCart();
-    router.push('/'); // Redireciona para a página inicial
+      // Guarda uma indicação para mostrar o modal de feedback na próxima página
+      sessionStorage.setItem('showFeedbackModal', 'true');
+      
+      clearCart();
+      router.push('/profile');
+
+    } catch (error) {
+      console.error("Erro ao processar a encomenda: ", error);
+      alert("Ocorreu um erro ao finalizar a sua encomenda. Por favor, tente novamente.");
+    }
   };
   
   if (!isClient) {

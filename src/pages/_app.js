@@ -2,60 +2,55 @@
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router'; // Importar o useRouter
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase.js';
 import Header from '@/components/Header.js';
 import Footer from '@/components/Footer.js';
-import Head from 'next/head'; // 1. Importar o componente Head
+import Head from 'next/head';
+import FeedbackModal from '@/components/FeedbackModal'; // Importar o novo modal
 import '../styles/global.css';
 
 function MyApp({ Component, pageProps }) {
-  const [availableGenres, setAvailableGenres] = useState([]);
-  const [selectedTypes, setSelectedTypes] = useState(new Set());
-  const [selectedGenres, setSelectedGenres] = useState(new Set());
-  const [searchTerm, setSearchTerm] = useState('');
+  const [showFeedback, setShowFeedback] = useState(false);
+  const router = useRouter(); // Usar o router
 
+  // ... (código existente para os filtros)
+
+  // Efeito para verificar se o modal deve ser mostrado
   useEffect(() => {
-    const fetchGenres = async () => {
-      const productsRef = collection(db, "products");
-      const querySnapshot = await getDocs(productsRef);
-      const genres = new Set(querySnapshot.docs.map(d => d.data().genre).filter(Boolean));
-      setAvailableGenres(Array.from(genres).sort());
-    };
-    fetchGenres();
-  }, []);
+    // Verifica se a "bandeira" do sessionStorage existe
+    const shouldShow = sessionStorage.getItem('showFeedbackModal');
+    // Verifica se o utilizador já pediu para não ver o modal
+    const isHidden = localStorage.getItem('hideFeedbackModal') === 'true';
+    
+    if (shouldShow && !isHidden) {
+      setShowFeedback(true);
+      // Remove a bandeira para não mostrar novamente na mesma sessão
+      sessionStorage.removeItem('showFeedbackModal');
+    }
+  }, [router.asPath]); // Executa este efeito sempre que a rota muda
 
-  const handleTypeChange = (type) => setSelectedTypes(p => { const n = new Set(p); n.has(type) ? n.delete(type) : n.add(type); return n; });
-  const handleGenreChange = (genre) => setSelectedGenres(p => { const n = new Set(p); n.has(genre) ? n.delete(genre) : n.add(genre); return n; });
-  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+  const handleCloseModal = () => {
+    setShowFeedback(false);
+  };
 
   return (
     <AuthProvider>
       <CartProvider>
-        {/* 2. Adicionar o Head antes do conteúdo principal */}
         <Head>
-          <title>Sound Station</title>
-          <link rel="icon" href="/logo.png" type="image/png" />
-          <link rel="apple-touch-icon" href="/logo.png" />
+          {/* ... */}
         </Head>
+        
+        {/* Adiciona o Modal à aplicação */}
+        <FeedbackModal show={showFeedback} onClose={handleCloseModal} />
 
         <div className="app-wrapper">
           <Header
-            availableGenres={availableGenres}
-            selectedTypes={selectedTypes}
-            onTypeChange={handleTypeChange}
-            selectedGenres={selectedGenres}
-            onGenreChange={handleGenreChange}
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
+            // ... (props existentes)
           />
           <main className="main-content">
-            <Component
-              {...pageProps}
-              selectedTypes={selectedTypes}
-              selectedGenres={selectedGenres}
-              searchTerm={searchTerm}
-            />
+            <Component {...pageProps} />
           </main>
           <Footer />
         </div>
